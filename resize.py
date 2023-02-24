@@ -1,8 +1,9 @@
 import cv2
 import os
 
-width = 900
-height = 600
+# default background image size
+width = 1920
+height = 1080
 
 listImg = os.listdir(f'background_img/old')
 # imgList = []
