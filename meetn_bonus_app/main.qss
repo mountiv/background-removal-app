@@ -1,6 +1,31 @@
 QPushButton {
-    color: '#222';
+    color: #DDDDDD;
     border: 1px solid;
+    border-color: #AAAAAA;
     border-radius: 2px;
     padding: 5px;
+}
+
+QLineEdit {
+    color: #DDDDDD;
+    background-color: #777777;
+    border: 1px solid;
+    border-color: #AAAAAA;
+    border-radius: 2px;
+    padding: 3px;
+    font-size: 15px;
+}
+
+QComboBox {
+    color: #DDDDDD;
+    background-color: #777777;
+    border: 1px solid;
+    border-color: #AAAAAA;
+    border-radius: 2px;
+    padding: 3px;
+    font-size: 15px;
+}
+
+QWidget#SubTitle {
+    font-size: 22px;
 }
