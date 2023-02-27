@@ -14,6 +14,7 @@ QLineEdit {
     border-radius: 2px;
     padding: 3px;
     font-size: 15px;
+    width: 400px;
 }
 
 QComboBox {
