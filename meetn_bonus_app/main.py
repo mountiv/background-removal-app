@@ -92,6 +92,7 @@ class Window(QWidget):
 
         #open folder button
         self.openFolderBtn = QPushButton("Select Folder", self)
+        self.openFolderBtn.clicked.connect(self.openFolderButtonClicked)
 
         #right_layout
         right_layout = QVBoxLayout()
@@ -109,6 +110,23 @@ class Window(QWidget):
         layout.addWidget(w_left_layout)
         layout.addWidget(w_right_layout)
         self.setLayout(layout)
+
+    def openFolderButtonClicked(self):
+        self.openFileNamesDialog()
+
+    def openFileNamesDialog(self):
+        dialog = QFileDialog(self)
+        background_image_directory_path = str(dialog.getExistingDirectory(self, "Select Virtual Background Folder"))
+        if background_image_directory_path:
+            self.dir_name_edit.setText(background_image_directory_path)
+            background_image_list = os.listdir(Path(background_image_directory_path))
+            background_image_list_new = []
+            for background_image_path in background_image_list:
+                my_path = f'{Path(background_image_directory_path)}\{background_image_path}'
+                isFile = os.path.isfile(my_path)
+                if (isFile):
+                    if (imghdr.what(my_path) != None):
+                        background_image_list_new.append(my_path)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
