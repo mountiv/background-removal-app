@@ -32,8 +32,82 @@ class Window(QWidget):
         self.setWindowTitle("Meetn Bonus App")
         self.setStyleSheet("background-color: #333333")
 
+        #left_layout
+
+        #left_layout subtitle
+        subtitle1_layout = QLabel("Select a Camera Source:")
+        subtitle1_layout.setStyleSheet(
+                    "color: #DEDEDE;"
+                    "font-family:{default_font};"
+                    "font-size: 18px;"
+                    "padding: 0px 0px;"
+                )
+        
+        #available cameras
+        camera_combo = QComboBox()
+        camera_combo.setStyleSheet(
+            "background-color: #444444;"
+        )
+        camera_combo.addItem("web camera 1")
+        camera_combo.addItem("web camera 2")
+        camera_combo.addItem("web camera 3")
+        camera_combo.setFixedWidth(int(app_width*(3/5)-32))
+
+        #camera screen area
+        im = QPixmap(f"../basic_feature/human_img/2.jpg")
+        im = im.scaled(720, int(720*(9/16)))
+        composite_screen = QLabel()
+        composite_screen.setPixmap(im)
+
+        #left_layout
+        left_layout = QVBoxLayout()
+        left_layout.addWidget(subtitle1_layout)
+        left_layout.addWidget(camera_combo)
+        left_layout.addWidget(composite_screen)
+        left_layout.addStretch()
+        
+        w_left_layout = QWidget()
+        w_left_layout.setLayout(left_layout)
+        w_left_layout.setFixedWidth(int(app_width * (3/5)))
+        
+
+
+        #right_layout
+
+        #right_layout subtitle
+        subtitle2_layout = QLabel("Select a Virtual Background:")
+        subtitle2_layout.setStyleSheet(
+                    "color: #DEDEDE;"
+                    "font-family:{default_font};"
+                    "font-size: 18px;"
+                    "padding: 0px 0px;"
+                )
+
+        #background image path
+        self.background_image_path = ""
+        self.dir_name_edit = QLineEdit()
+        self.dir_name_edit.setStyleSheet(
+            "background-color: #444444;"
+        )
+
+        #open folder button
+        self.openFolderBtn = QPushButton("Select Folder", self)
+
+        #right_layout
+        right_layout = QVBoxLayout()
+        right_layout.addWidget(subtitle2_layout)
+        right_layout.addWidget(self.dir_name_edit)
+        right_layout.addWidget(self.openFolderBtn)
+        right_layout.addStretch()
+
+        w_right_layout = QWidget()
+        w_right_layout.setLayout(right_layout)
+        w_right_layout.setFixedWidth(int(app_width * (2/5)))
+
+        #main layout
         layout = QHBoxLayout()
-        layout.addWidget(QLabel('Meetn Bonus App'))
+        layout.addWidget(w_left_layout)
+        layout.addWidget(w_right_layout)
         self.setLayout(layout)
 
 if __name__ == "__main__":
