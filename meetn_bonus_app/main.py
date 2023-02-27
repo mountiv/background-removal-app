@@ -93,6 +93,34 @@ class Window(QWidget):
         #open folder button
         self.openFolderBtn = QPushButton("Select Folder", self)
         self.openFolderBtn.clicked.connect(self.openFolderButtonClicked)
+      
+        #background image gallery, scroll_area
+        self.background_image_directory_path = ""
+        self.background_image_list = []
+
+        scrollArea = QScrollArea()
+        scrollArea.setStyleSheet(
+            "QScrollBar:vertical"
+            "{"
+                "border: none;"
+                "width: 7px;"
+                "margin: 0 0 0 0;"
+            "}"
+        )
+        scrollArea.setWidgetResizable(True)
+        scrollAreaWidgetContents = QWidget()
+        gridLayout = QGridLayout(scrollAreaWidgetContents)
+        scrollArea.setWidget(scrollAreaWidgetContents)
+        scrollArea.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
+        scrollArea.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+
+        i = 0
+        for background_image_path in self.background_image_list:
+            isFile = os.path.isfile(background_image_path)
+            if (isFile):
+                if (imghdr.what(background_image_path) != None):
+                    gridLayout.addWidget(single_image(os.path.relpath(background_image_path)), int((i-i%2)/2), i%2)
+                    i += 1
 
         #right_layout
         right_layout = QVBoxLayout()
@@ -104,6 +132,8 @@ class Window(QWidget):
         w_right_layout = QWidget()
         w_right_layout.setLayout(right_layout)
         w_right_layout.setFixedWidth(int(app_width * (2/5)))
+
+
 
         #main layout
         layout = QHBoxLayout()
@@ -119,14 +149,15 @@ class Window(QWidget):
         background_image_directory_path = str(dialog.getExistingDirectory(self, "Select Virtual Background Folder"))
         if background_image_directory_path:
             self.dir_name_edit.setText(background_image_directory_path)
+            self.background_image_directory_path = background_image_directory_path
             background_image_list = os.listdir(Path(background_image_directory_path))
-            background_image_list_new = []
+            self.background_image_list.clear()
             for background_image_path in background_image_list:
                 my_path = f'{Path(background_image_directory_path)}\{background_image_path}'
                 isFile = os.path.isfile(my_path)
                 if (isFile):
                     if (imghdr.what(my_path) != None):
-                        background_image_list_new.append(my_path)
+                        self.background_image_list.append(my_path)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
