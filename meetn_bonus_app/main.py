@@ -40,7 +40,7 @@ class Window(QWidget):
                     "color: #DEDEDE;"
                     "font-family:{default_font};"
                     "font-size: 18px;"
-                    "padding: 0px 0px;"
+                    "font-weight: 600;"
                 )
         
         #available cameras
@@ -80,7 +80,7 @@ class Window(QWidget):
                     "color: #DEDEDE;"
                     "font-family:{default_font};"
                     "font-size: 18px;"
-                    "padding: 0px 0px;"
+                    "font-weight: 600;"
                 )
 
         #background image path
@@ -94,12 +94,13 @@ class Window(QWidget):
         self.openFolderBtn = QPushButton("Select Folder", self)
         self.openFolderBtn.clicked.connect(self.openFolderButtonClicked)
       
-        #background image gallery, scroll_area
+        #background image gallery, self.scroll_area
         self.background_image_directory_path = ""
-        self.background_image_list = []
+        self.background_image_list = ['E:\\background\\Nature (1).png', 'E:\\background\\Nature (10).png', 'E:\\background\\Nature (11).png', 'E:\\background\\Nature (2).png', 'E:\\background\\Nature (3).png', 'E:\\background\\Nature (4).png', 'E:\\background\\Nature (5).png', 'E:\\background\\Nature (6).png', 'E:\\background\\Nature (7).png', 'E:\\background\\Nature (8).png', 'E:\\background\\Nature (9).png']
 
-        scrollArea = QScrollArea()
-        scrollArea.setStyleSheet(
+        self.scroll_area = QScrollArea()
+        self.scroll_area.setFixedHeight(app_height-140)
+        self.scroll_area.setStyleSheet(
             "QScrollBar:vertical"
             "{"
                 "border: none;"
@@ -107,26 +108,21 @@ class Window(QWidget):
                 "margin: 0 0 0 0;"
             "}"
         )
-        scrollArea.setWidgetResizable(True)
+        self.scroll_area.setWidgetResizable(True)
         scrollAreaWidgetContents = QWidget()
-        gridLayout = QGridLayout(scrollAreaWidgetContents)
-        scrollArea.setWidget(scrollAreaWidgetContents)
-        scrollArea.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
-        scrollArea.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.gridLayout = QGridLayout(scrollAreaWidgetContents)
+        self.scroll_area.setWidget(scrollAreaWidgetContents)
+        self.scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
+        self.scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
-        i = 0
-        for background_image_path in self.background_image_list:
-            isFile = os.path.isfile(background_image_path)
-            if (isFile):
-                if (imghdr.what(background_image_path) != None):
-                    gridLayout.addWidget(single_image(os.path.relpath(background_image_path)), int((i-i%2)/2), i%2)
-                    i += 1
+        
 
         #right_layout
         right_layout = QVBoxLayout()
         right_layout.addWidget(subtitle2_layout)
         right_layout.addWidget(self.dir_name_edit)
         right_layout.addWidget(self.openFolderBtn)
+        right_layout.addWidget(self.scroll_area)
         right_layout.addStretch()
 
         w_right_layout = QWidget()
@@ -158,6 +154,21 @@ class Window(QWidget):
                 if (isFile):
                     if (imghdr.what(my_path) != None):
                         self.background_image_list.append(my_path)
+        i = 0
+        for background_image_path in self.background_image_list:
+            isFile = os.path.isfile(background_image_path)
+            if (isFile):
+                if (imghdr.what(background_image_path) != None):
+                    bg_width = int(app_width*(2/5)/2-30)
+                    bg = QPixmap(os.path.relpath(background_image_path))
+                    bg = bg.scaled(bg_width, int(bg_width*(9/16)))
+                    single_background_image = QLabel()
+                    single_background_image.setPixmap(bg)
+
+                    self.gridLayout.addWidget(single_background_image, int((i-i%2)/2), i%2)
+                    i += 1
+                        
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
