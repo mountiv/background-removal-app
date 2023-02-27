@@ -1,4 +1,3 @@
-# 02-26 failed with class
 import sys
 import os
 import imghdr
@@ -116,6 +115,7 @@ class CompositeScreen(QWidget):
         self.grid = QGridLayout()
         self.grid.addWidget(self.label, 1, 1)
         self.setLayout(self.grid)
+
     def clickedMouse(self, event):
         i = random.randint(1, 4)
         self.im = QPixmap(f"../basic_feature/human_img/{i}.jpg")
@@ -169,14 +169,18 @@ class BackgroundImageGallery(QWidget):
 class GalleryImage(QWidget):
     def __init__(self, background_image_path):
         super(GalleryImage, self).__init__()
-        layout = QHBoxLayout()
-        label = QLabel()
-        print(background_image_path)
-        pixmap = QPixmap(background_image_path)
-        pixmap = pixmap.scaled(160, 120)
-        label.setPixmap(pixmap)
-        layout.addWidget(label)
-        self.setLayout(layout)
+        self.background_image_path = background_image_path
+        self.layout = QHBoxLayout()
+        self.label = QLabel()
+        self.label.mousePressEvent = self.selectBackgroundImage
+        self.pixmap = QPixmap(self.background_image_path)
+        self.pixmap = self.pixmap.scaled(160, 120)
+        self.label.setPixmap(self.pixmap)
+        self.layout.addWidget(self.label)
+        self.setLayout(self.layout)
+        
+    def selectBackgroundImage(self, event):
+        print(self.background_image_path)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
