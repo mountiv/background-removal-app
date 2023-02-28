@@ -18,6 +18,8 @@ from PyQt6.QtWidgets import (
     QListWidgetItem,
 )
 from PyQt6.QtCore import QDate, Qt, QSize
+from PyQt5.QtMultimedia import *
+from PyQt5.QtMultimediaWidgets import *
 
 default_font = "calibri"
 app_width = 800
@@ -26,6 +28,16 @@ app_height = int(app_width*(9/16))
 class Window(QWidget):
     def __init__(self):
         super().__init__()
+
+        # getting available cameras
+        self.available_cameras = QCameraInfo.availableCameras()
+
+		# if no camera found
+        if not self.available_cameras:
+            # exit the code
+            print('no camera')
+            sys.exit()
+                        
         self.setFixedSize(app_width, app_height)
         self.setWindowIcon(QIcon('logo.png'))
         self.setWindowTitle("Meetn Bonus App")
