@@ -2,8 +2,6 @@ import sys
 import os
 import imghdr
 from pathlib import Path
-import random
-
 from PyQt6.QtGui import QPixmap, QIcon
 from PyQt6.QtWidgets import (
     QApplication,
@@ -17,8 +15,10 @@ from PyQt6.QtWidgets import (
     QGridLayout,
     QFileDialog,
     QScrollArea,
+    QListWidget,
+    QListWidgetItem,
 )
-from PyQt6.QtCore import QDate, Qt
+from PyQt6.QtCore import QDate, Qt, QSize
 
 default_font = "calibri"
 app_width = 800
@@ -54,16 +54,17 @@ class Window(QWidget):
         camera_combo.setFixedWidth(int(app_width*(3/5)-32))
 
         #camera screen area
-        im = QPixmap(f"../basic_feature/human_img/2.jpg")
-        im = im.scaled(720, int(720*(9/16)))
-        composite_screen = QLabel()
-        composite_screen.setPixmap(im)
+        self.selected_background_image_path = f"../basic_feature/human_img/2.jpg"
+        self.im = QPixmap(self.selected_background_image_path)
+        self.im = self.im.scaled(720, int(720*(9/16)))
+        self.composite_screen = QLabel()
+        self.composite_screen.setPixmap(self.im)
 
         #left_layout
         left_layout = QVBoxLayout()
         left_layout.addWidget(subtitle1_layout)
         left_layout.addWidget(camera_combo)
-        left_layout.addWidget(composite_screen)
+        left_layout.addWidget(self.composite_screen)
         left_layout.addStretch()
         
         w_left_layout = QWidget()
@@ -94,13 +95,31 @@ class Window(QWidget):
         self.openFolderBtn = QPushButton("Select Folder", self)
         self.openFolderBtn.clicked.connect(self.openFolderButtonClicked)
       
-        #background image gallery, self.scroll_area
-        self.background_image_directory_path = ""
-        self.background_image_list = ['E:\\background\\Nature (1).png', 'E:\\background\\Nature (10).png', 'E:\\background\\Nature (11).png', 'E:\\background\\Nature (2).png', 'E:\\background\\Nature (3).png', 'E:\\background\\Nature (4).png', 'E:\\background\\Nature (5).png', 'E:\\background\\Nature (6).png', 'E:\\background\\Nature (7).png', 'E:\\background\\Nature (8).png', 'E:\\background\\Nature (9).png']
+        # #background image gallery, self.scroll_area
+        # self.background_image_directory_path = ""
+        self.background_image_list = []
 
-        self.scroll_area = QScrollArea()
-        self.scroll_area.setFixedHeight(app_height-140)
-        self.scroll_area.setStyleSheet(
+        # self.scroll_area = QScrollArea()
+        # self.scroll_area.setFixedHeight(app_height-140)
+        # self.scroll_area.setStyleSheet(
+        #     "QScrollBar:vertical"
+        #     "{"
+        #         "border: none;"
+        #         "width: 7px;"
+        #         "margin: 0 0 0 0;"
+        #     "}"
+        # )
+        # self.scroll_area.setWidgetResizable(True)
+        # scrollAreaWidgetContents = QWidget()
+        # self.gridLayout = QGridLayout(scrollAreaWidgetContents)
+        # self.scroll_area.setWidget(scrollAreaWidgetContents)
+        # self.scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
+        # self.scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+
+        #backgrouned image list, listItem Widget
+        self.listwidget = QListWidget()
+        self.listwidget.setFixedHeight(app_height-140)
+        self.listwidget.setStyleSheet(
             "QScrollBar:vertical"
             "{"
                 "border: none;"
@@ -108,21 +127,16 @@ class Window(QWidget):
                 "margin: 0 0 0 0;"
             "}"
         )
-        self.scroll_area.setWidgetResizable(True)
-        scrollAreaWidgetContents = QWidget()
-        self.gridLayout = QGridLayout(scrollAreaWidgetContents)
-        self.scroll_area.setWidget(scrollAreaWidgetContents)
-        self.scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
-        self.scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-
-        
+        self.listwidget.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
+        self.listwidget.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.listwidget.clicked.connect(self.selectBackgroundImage)
 
         #right_layout
         right_layout = QVBoxLayout()
         right_layout.addWidget(subtitle2_layout)
         right_layout.addWidget(self.dir_name_edit)
         right_layout.addWidget(self.openFolderBtn)
-        right_layout.addWidget(self.scroll_area)
+        right_layout.addWidget(self.listwidget)
         right_layout.addStretch()
 
         w_right_layout = QWidget()
@@ -138,9 +152,6 @@ class Window(QWidget):
         self.setLayout(layout)
 
     def openFolderButtonClicked(self):
-        self.openFileNamesDialog()
-
-    def openFileNamesDialog(self):
         dialog = QFileDialog(self)
         background_image_directory_path = str(dialog.getExistingDirectory(self, "Select Virtual Background Folder"))
         if background_image_directory_path:
@@ -159,15 +170,31 @@ class Window(QWidget):
             isFile = os.path.isfile(background_image_path)
             if (isFile):
                 if (imghdr.what(background_image_path) != None):
-                    bg_width = int(app_width*(2/5)/2-30)
-                    bg = QPixmap(os.path.relpath(background_image_path))
-                    bg = bg.scaled(bg_width, int(bg_width*(9/16)))
-                    single_background_image = QLabel()
-                    single_background_image.setPixmap(bg)
+                    # bg_width = int(app_width*(2/5)/2-30)
+                    # bg = QPixmap(os.path.relpath(background_image_path))
+                    # bg = bg.scaled(bg_width, int(bg_width*(9/16)))
+                    # single_background_image = QLabel()
+                    # single_background_image.setPixmap(bg)
+                    # # single_background_image.mouseDoubleClickEvent = self.selectBackgroundImage(os.path.relpath(background_image_path))
+                    # self.selected_background_image_path = background_image_path
 
-                    self.gridLayout.addWidget(single_background_image, int((i-i%2)/2), i%2)
+                    # self.gridLayout.addWidget(single_background_image, int((i-i%2)/2), i%2)
+                    
+                    item = QListWidgetItem()
+                    icon = QIcon()
+                    icon.addFile(os.path.relpath(background_image_path), QSize(10,10))
+                    item.setIcon(icon)
+                    item.setText(background_image_path)
+                    self.listwidget.addItem(item)
                     i += 1
-                        
+
+    def selectBackgroundImage(self, qmodelindex):
+        item = self.listwidget.currentItem()
+        self.selected_background_image_path = os.path.relpath(item.text())
+        self.im = QPixmap(self.selected_background_image_path)
+        self.im = self.im.scaled(720, int(720*(9/16)))
+        self.composite_screen.setPixmap(self.im)
+        print(item.text())
 
 
 if __name__ == "__main__":

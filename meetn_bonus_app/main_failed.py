@@ -154,6 +154,7 @@ class BackgroundImageGallery(QWidget):
         scrollArea.setWidget(scrollAreaWidgetContents)
         scrollArea.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
         scrollArea.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        
 
         i = 0
         for background_image_path in background_image_list:
