@@ -47,16 +47,22 @@ class Window(QWidget):
         # left_layout subtitle
         subtitle1_layout = QLabel("Select a Camera Source:")
         subtitle1_layout.setStyleSheet(
-                    "color: #DEDEDE;"
-                    "font-family:{default_font};"
-                    "font-size: 18px;"
-                    "font-weight: 600;"
-                )
+            "color: #DEDEDE;"
+            "font-family:{default_font};"
+            "font-size: 22px;"
+            "font-weight: 600;"
+        )
         
         # available cameras
         camera_combo = QComboBox()
         camera_combo.setStyleSheet(
+            "color: #DDDDDD;"
             "background-color: #444444;"
+            "border: 1px solid;"
+            "border-color: #AAAAAA;"
+            "border-radius: 2px;"
+            "padding: 3px;"
+            "font-size: 15px;"
         )
         camera_combo.setFixedWidth(int(app_width*(3/5)-32))
 
@@ -93,21 +99,34 @@ class Window(QWidget):
         # right_layout subtitle
         subtitle2_layout = QLabel("Select a Virtual Background:")
         subtitle2_layout.setStyleSheet(
-                    "color: #DEDEDE;"
-                    "font-family:{default_font};"
-                    "font-size: 18px;"
-                    "font-weight: 600;"
-                )
+            "color: #DEDEDE;"
+            "font-family:{default_font};"
+            "font-size: 22px;"
+            "font-weight: 600;"
+        )
 
         # background image path
         self.background_image_path = ""
         self.dir_name_edit = QLineEdit()
         self.dir_name_edit.setStyleSheet(
+            "color: #DDDDDD;"
             "background-color: #444444;"
+            "border: 1px solid;"
+            "border-color: #AAAAAA;"
+            "border-radius: 2px;"
+            "padding: 3px;"
+            "font-size: 15px;"
         )
 
         # open folder button
         self.openFolderBtn = QPushButton("Select Folder", self)
+        self.openFolderBtn.setStyleSheet(
+            "color: #DDDDDD;"
+            "border: 1px solid;"
+            "border-color: #AAAAAA;"
+            "border-radius: 2px;"
+            "padding: 5px;"
+        )
         self.openFolderBtn.clicked.connect(self.openFolderButtonClicked)
 
         # backgrouned image list, listItem Widget
@@ -185,16 +204,9 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = Window()
 
-    #open qss file
-    File = open("main.qss",'r')
-
-    with File:
-        qss = File.read()
-        app.setStyleSheet(qss)
-        now = QDate.currentDate()
-
-        print(now.toString(Qt.DateFormat.ISODate))
-        print(now.toString(Qt.DateFormat.RFC2822Date))
+    now = QDate.currentDate()
+    print(now.toString(Qt.DateFormat.ISODate))
+    print(now.toString(Qt.DateFormat.RFC2822Date))
         
     window.show()
     sys.exit(app.exec())
