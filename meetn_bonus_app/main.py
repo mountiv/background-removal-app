@@ -36,7 +36,7 @@ class Window(QWidget):
         if not self.available_cameras:
             # exit the code
             print('no camera')
-            sys.exit()
+            # sys.exit()
                         
         self.setFixedSize(app_width, app_height)
         self.setWindowIcon(QIcon('logo.png'))
@@ -58,10 +58,17 @@ class Window(QWidget):
         camera_combo.setStyleSheet(
             "background-color: #444444;"
         )
-        camera_combo.addItem("web camera 1")
-        camera_combo.addItem("web camera 2")
-        camera_combo.addItem("web camera 3")
         camera_combo.setFixedWidth(int(app_width*(3/5)-32))
+
+        # adding status tip to it
+        camera_combo.setStatusTip("Choose camera to take pictures")
+
+		# adding tool tip to it
+        camera_combo.setToolTip("Select Camera")
+        camera_combo.setToolTipDuration(2500)
+
+		# adding items to the combo box
+        camera_combo.addItems([camera.description() for camera in self.available_cameras])
 
         # camera screen area
         self.selected_background_image_path = f"../basic_feature/human_img/2.jpg"
