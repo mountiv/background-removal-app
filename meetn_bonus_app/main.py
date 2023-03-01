@@ -3,7 +3,7 @@ import os
 import imghdr
 
 from pathlib import Path
-from PyQt6.QtGui import QPixmap, QIcon
+from PyQt6.QtGui import QPixmap, QIcon, QColor
 from PyQt6.QtWidgets import (
     QApplication,
     QHBoxLayout,
@@ -11,13 +11,14 @@ from PyQt6.QtWidgets import (
     QPushButton,
     QWidget,
     QLabel,
+    QMainWindow,
     QComboBox,
     QLineEdit,
     QFileDialog,
     QListWidget,
     QListWidgetItem,
 )
-from PyQt6.QtCore import QDate, Qt, QSize
+from PyQt6.QtCore import Qt, QSize
 from PyQt5.QtMultimedia import *
 from PyQt5.QtMultimediaWidgets import *
 
@@ -25,7 +26,7 @@ default_font = "calibri"
 app_width = 800
 app_height = int(app_width*(9/16))
 
-class Window(QWidget):
+class Window(QMainWindow):
     def __init__(self):
         super().__init__()
 
@@ -34,10 +35,9 @@ class Window(QWidget):
 
 		# if no camera found
         if not self.available_cameras:
-            # exit the code
             print('no camera')
             # sys.exit()
-                        
+
         self.setFixedSize(app_width, app_height)
         self.setWindowIcon(QIcon('logo.png'))
         self.setWindowTitle("Meetn Bonus App")
@@ -49,8 +49,8 @@ class Window(QWidget):
         subtitle1_layout.setStyleSheet(
             "color: #DEDEDE;"
             "font-family:{default_font};"
-            "font-size: 22px;"
-            "font-weight: 600;"
+            "font-size: 20px;"
+            "font-weight: 500;"
         )
         
         # available cameras
@@ -101,8 +101,8 @@ class Window(QWidget):
         subtitle2_layout.setStyleSheet(
             "color: #DEDEDE;"
             "font-family:{default_font};"
-            "font-size: 22px;"
-            "font-weight: 600;"
+            "font-size: 20px;"
+            "font-weight: 500;"
         )
 
         # background image path
@@ -137,8 +137,9 @@ class Window(QWidget):
             "QScrollBar:vertical"
             "{"
                 "border: none;"
-                "width: 7px;"
+                "width: 5px;"
                 "margin: 0 0 0 0;"
+                "background-color: #777777;"
             "}"
         )
         self.listwidget.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
@@ -162,7 +163,10 @@ class Window(QWidget):
         layout = QHBoxLayout()
         layout.addWidget(w_left_layout)
         layout.addWidget(w_right_layout)
-        self.setLayout(layout)
+
+        widget = QWidget(self)
+        widget.setLayout(layout)
+        self.setCentralWidget(widget)
 
     def openFolderButtonClicked(self):
         dialog = QFileDialog(self)
@@ -185,13 +189,15 @@ class Window(QWidget):
                 if (imghdr.what(background_image_path) != None):
                     item = QListWidgetItem()
                     icon = QIcon()
-                    icon.addFile(os.path.relpath(background_image_path), QSize(10,10))
+                    icon.addFile(os.path.relpath(background_image_path))
                     item.setIcon(icon)
                     item.setText(background_image_path)
+                    item.setForeground(QColor("#777777"))
                     self.listwidget.addItem(item)
+                    self.listwidget.setIconSize(QSize(160, 90))
                     i += 1
 
-    def selectBackgroundImage(self, qmodelindex):
+    def selectBackgroundImage(self):
         item = self.listwidget.currentItem()
         self.selected_background_image_path = os.path.relpath(item.text())
         self.im = QPixmap(self.selected_background_image_path)
@@ -203,10 +209,6 @@ class Window(QWidget):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = Window()
-
-    now = QDate.currentDate()
-    print(now.toString(Qt.DateFormat.ISODate))
-    print(now.toString(Qt.DateFormat.RFC2822Date))
         
     window.show()
     sys.exit(app.exec())
