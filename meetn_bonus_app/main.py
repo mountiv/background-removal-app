@@ -44,7 +44,6 @@ class Thread(QThread):
         QThread.__init__(self, parent)
         self.status = True
         self.cap = True
-        self.bg_path = f"../basic_feature/human_img/2.jpg"
         self.bg_path = ""
 
     def set_file(self, fname):
@@ -143,7 +142,7 @@ class Window(QMainWindow):
 
         # camera screen area
         if not self.available_cameras:
-            self.composite_screen = QLabel("The program can't find any available camera. Please connect extenal one.")
+            self.composite_screen = QLabel("There are no cameras available.")
             self.composite_screen.setStyleSheet(
                 "font-size: 20px;"
                 "color: #777777;"
