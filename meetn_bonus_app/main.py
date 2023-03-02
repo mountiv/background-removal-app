@@ -6,7 +6,11 @@ import mediapipe as mp
 import cv2
 
 from pathlib import Path
+from PyQt5.QtMultimedia import *
+from PyQt5.QtMultimediaWidgets import *
+from PySide6.QtCore import QThread, Signal, Slot
 from PyQt6.QtGui import QPixmap, QIcon, QImage, QColor
+from PyQt6.QtCore import Qt, QSize
 from PyQt6.QtWidgets import (
     QApplication,
     QHBoxLayout,
@@ -21,14 +25,14 @@ from PyQt6.QtWidgets import (
     QListWidget,
     QListWidgetItem,
 )
-from PyQt6.QtCore import Qt, QSize
-from PySide6.QtCore import QThread, Signal, Slot
-from PyQt5.QtMultimedia import *
-from PyQt5.QtMultimediaWidgets import *
 
 default_font = "calibri"
 app_width = 800
 app_height = int(app_width*(9/16))
+# screen_width = int(app_width*(3/5))
+# screen_height = int(screen_width*(9/16))
+screen_width = 640
+screen_height = 480
 mp_selfie_segmentation = mp.solutions.selfie_segmentation
 selfie_segmentation = mp_selfie_segmentation.SelfieSegmentation(model_selection=1)
 
@@ -41,6 +45,7 @@ class Thread(QThread):
         self.status = True
         self.cap = True
         self.bg_path = f"../basic_feature/human_img/2.jpg"
+        self.bg_path = ""
 
     def set_file(self, fname):
         self.bg_path = fname
@@ -52,28 +57,35 @@ class Thread(QThread):
             if not ret:
                 continue
 
-            color_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            if self.bg_path == "":
+                color_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
-            width = 640
-            height = 480
+                h, w, ch = color_frame.shape
+                img = QImage(color_frame.data, w, h, ch * w, QImage.Format.Format_RGB888)
+                scaled_img = img.scaled(screen_width, screen_height)
+            else:
+                color_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
-            results = selfie_segmentation.process(color_frame)
+                width = screen_width
+                height = screen_height
 
-            # extract segmented mask
-            mask = results.segmentation_mask
-            condition = np.stack((mask,) * 3, axis=-1) > 0.5
+                results = selfie_segmentation.process(color_frame)
 
-            bg_img = cv2.imread(self.bg_path)
+                # extract segmented mask
+                mask = results.segmentation_mask
+                condition = np.stack((mask,) * 3, axis=-1) > 0.5
 
-            # resizing background Image
-            bg_img = cv2.resize(bg_img, (width, height))
+                bg_img = cv2.imread(self.bg_path)
 
-            output_image = np.where(condition, frame, bg_img)
+                # resizing background Image
+                bg_img = cv2.resize(bg_img, (width, height))
 
-            # Creating and scaling QImage
-            h, w, ch = output_image.shape
-            img = QImage(output_image.data, w, h, ch * w, QImage.Format.Format_RGB888)
-            scaled_img = img.scaled(640, 480)
+                output_image = np.where(condition, frame, bg_img)
+
+                # Creating and scaling QImage
+                h, w, ch = output_image.shape
+                img = QImage(output_image.data, w, h, ch * w, QImage.Format.Format_RGB888)
+                scaled_img = img.scaled(screen_width, screen_height)
 
             # Emit signal
             self.updateFrame.emit(scaled_img)
@@ -130,8 +142,16 @@ class Window(QMainWindow):
         camera_combo.addItems([camera.description() for camera in self.available_cameras])
 
         # camera screen area
-        self.composite_screen = QLabel()
-        self.composite_screen.setFixedSize(640, 480)
+        if not self.available_cameras:
+            self.composite_screen = QLabel("The program can't find any available camera. Please connect extenal one.")
+            self.composite_screen.setStyleSheet(
+                "font-size: 20px;"
+                "color: #777777;"
+            )
+            # sys.exit()
+        else: 
+            self.composite_screen = QLabel()
+            self.composite_screen.setFixedSize(int(app_width*(3/5)-32), int((app_width*(3/5)-32)*9/16))
 
         self.th = Thread()
         self.th.updateFrame.connect(self.setImage)
