@@ -11,9 +11,11 @@ cap = cv2.VideoCapture(0)
 width = 1920
 height = 1080
 
+# Path of the background image to replace the original
 bg_img = cv2.imread(f'background_img/new/bg1.jpg')
 
 while True:
+    # Path of the natural image that include human body
     frame = cv2.imread("./human_img/1.jpg")
 
     dimensions = frame.shape
