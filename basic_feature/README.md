@@ -10,7 +10,7 @@ If you are the first time to install Python in your PC, don't worry.
 
 - numpy: `pip install numpy`
 
-- open-cv: `pip insall opencv-python`
+- open-cv: `pip install opencv-python`
 
 - mediapipe: `pip install mediapipe`
 
