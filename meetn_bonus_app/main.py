@@ -1,9 +1,12 @@
 import sys
 import os
 import imghdr
+import numpy as np
+import mediapipe as mp
+import cv2
 
 from pathlib import Path
-from PyQt6.QtGui import QPixmap, QIcon, QColor
+from PyQt6.QtGui import QPixmap, QIcon, QImage, QColor
 from PyQt6.QtWidgets import (
     QApplication,
     QHBoxLayout,
@@ -19,12 +22,62 @@ from PyQt6.QtWidgets import (
     QListWidgetItem,
 )
 from PyQt6.QtCore import Qt, QSize
+from PySide6.QtCore import QThread, Signal, Slot
 from PyQt5.QtMultimedia import *
 from PyQt5.QtMultimediaWidgets import *
 
 default_font = "calibri"
 app_width = 800
 app_height = int(app_width*(9/16))
+mp_selfie_segmentation = mp.solutions.selfie_segmentation
+selfie_segmentation = mp_selfie_segmentation.SelfieSegmentation(model_selection=1)
+
+class Thread(QThread):
+    updateFrame = Signal(QImage)
+
+
+    def __init__(self, parent=None):
+        QThread.__init__(self, parent)
+        self.status = True
+        self.cap = True
+        self.bg_path = f"../basic_feature/human_img/2.jpg"
+
+    def set_file(self, fname):
+        self.bg_path = fname
+
+    def run(self):
+        self.cap = cv2.VideoCapture(0)
+        while self.status:
+            ret, frame = self.cap.read()
+            if not ret:
+                continue
+
+            color_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
+            width = 640
+            height = 480
+
+            results = selfie_segmentation.process(color_frame)
+
+            # extract segmented mask
+            mask = results.segmentation_mask
+            condition = np.stack((mask,) * 3, axis=-1) > 0.5
+
+            bg_img = cv2.imread(self.bg_path)
+
+            # resizing background Image
+            bg_img = cv2.resize(bg_img, (width, height))
+
+            output_image = np.where(condition, frame, bg_img)
+
+            # Creating and scaling QImage
+            h, w, ch = output_image.shape
+            img = QImage(output_image.data, w, h, ch * w, QImage.Format.Format_RGB888)
+            scaled_img = img.scaled(640, 480)
+
+            # Emit signal
+            self.updateFrame.emit(scaled_img)
+        sys.exit(-1)
 
 class Window(QMainWindow):
     def __init__(self):
@@ -77,11 +130,12 @@ class Window(QMainWindow):
         camera_combo.addItems([camera.description() for camera in self.available_cameras])
 
         # camera screen area
-        self.selected_background_image_path = f"../basic_feature/human_img/2.jpg"
-        self.im = QPixmap(self.selected_background_image_path)
-        self.im = self.im.scaled(720, int(720*(9/16)))
         self.composite_screen = QLabel()
-        self.composite_screen.setPixmap(self.im)
+        self.composite_screen.setFixedSize(640, 480)
+
+        self.th = Thread()
+        self.th.updateFrame.connect(self.setImage)
+        self.th.start()
         
         # left_layout
         left_layout = QVBoxLayout()
@@ -188,6 +242,7 @@ class Window(QMainWindow):
             if (isFile):
                 if (imghdr.what(background_image_path) != None):
                     item = QListWidgetItem()
+                    item.setSizeHint(QSize(200,100))
                     icon = QIcon()
                     icon.addFile(os.path.relpath(background_image_path))
                     item.setIcon(icon)
@@ -196,15 +251,20 @@ class Window(QMainWindow):
                     self.listwidget.addItem(item)
                     self.listwidget.setIconSize(QSize(160, 90))
                     i += 1
-
+    @Slot()
     def selectBackgroundImage(self):
         item = self.listwidget.currentItem()
-        self.selected_background_image_path = os.path.relpath(item.text())
-        self.im = QPixmap(self.selected_background_image_path)
-        self.im = self.im.scaled(720, int(720*(9/16)))
-        self.composite_screen.setPixmap(self.im)
-        print(item.text())
+        self.th.set_file(os.path.relpath(item.text()))
 
+    # method to select camera
+    def select_camera(self, i):
+        self.camera = QCamera(self.available_cameras[i])
+        self.camera.error.connect(lambda: self.alert(self.camera.errorString()))
+        self.camera.start()
+
+    @Slot(QImage)
+    def setImage(self, image):
+        self.composite_screen.setPixmap(QPixmap.fromImage(image))
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
